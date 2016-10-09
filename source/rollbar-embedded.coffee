@@ -1,24 +1,23 @@
 initialize = do ->
-  initialized = no
+  run = no
 
   ({config, token, env}) ->
-    return if initialized
+    unless run
+      run = yes
+      throw new Error('Rollbar initializer: token not given') if not token and not config?.token
 
-    throw new Error('Rollbar initializer: token not given') if not token and not config?.token
+      # https://github.com/rollbar/rollbar.js/blob/master/dist/rollbar.umd.js
+      # v1.9.2
+      try
+        `
+          // ROLLBAR
+        `
 
-    initialized    = yes
-    _rollbarConfig = config ?
-      accessToken:                token
-      captureUncaught:            true
-      captureUnhandledRejections: true
-      payload:                    { environment: env }
-
-    # https://github.com/rollbar/rollbar.js/blob/master/dist/rollbar.umd.js
-    # v1.9.2
-    try
-      `
-        // ROLLBAR
-      `
+        Rollbar.init config ?
+          accessToken:                token
+          captureUncaught:            true
+          captureUnhandledRejections: true
+          payload:                    { environment: env }
     return
 
 if (head = document.getElementsByTagName('head')[0])?
