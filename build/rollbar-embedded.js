@@ -20,6 +20,7 @@
             accessToken: token,
             captureUncaught: true,
             captureUnhandledRejections: true,
+            verbose: true,
             payload: {
               environment: env
             }
