@@ -1,44 +1,45 @@
+###!
+# rollbar-embedded 1.9.2-1 | https://github.com/yivo/rollbar-embedded | MIT License
+###
+
 initialize = do ->
-  run = no
+  initialized = false
 
   ({config, token, env}) ->
-    unless run
-      run = yes
-      throw new Error('Rollbar initializer: token not given') if not token and not config?.token
+    unless initialized
+      if not token and not config?.token
+        throw new TypeError('[Rollbar Initializer] Token not given')
 
-      # https://github.com/rollbar/rollbar.js/blob/master/dist/rollbar.umd.js
-      # v1.9.2
-      try
-        `
-          // ROLLBAR
-        `
-
+      try 
+        ```
+          /* rollbar.js */
+        ```
+        
         Rollbar.init config ?
           accessToken:                token
           captureUncaught:            true
           captureUnhandledRejections: true
           verbose:                    true
           payload:                    { environment: env }
+
+      initialized = true
     return
 
 if (head = document.getElementsByTagName('head')[0])?
   meta = head.getElementsByTagName('meta')
-  env  = null
 
-  for el in meta when el.getAttribute('name') in ['app:environment', 'environment', 'app:env', 'rails:env', 'env']
-    break if env = el.getAttribute('content')
-
-  env ||= 'production'
+  for el in meta when el.getAttribute('name') is 'rollbar:env'
+    env = el.getAttribute('content')
+    break
 
   for el in meta
-    name = el.getAttribute('name')
-
-    if name is 'rollbar:config' and json = el.getAttribute('content')
-      try config = JSON?.parse(json) ? $?.parseJSON(json)
-      if config?
-        initialize({config, env})
+    switch el.getAttribute('name')
+      when 'rollbar:config'
+        json = el.getAttribute('content')
+        try config = JSON?.parse(json) ? $?.parseJSON(json)
+        initialize({config, env}) if config?
         break
-
-    else if name is 'rollbar:access_token' and token = el.getAttribute('content')
-      initialize({token, env})
-      break
+      when 'rollbar:access_token'
+        token = el.getAttribute('content')
+        initialize({token, env}) if token
+        break
