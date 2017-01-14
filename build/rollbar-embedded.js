@@ -1,6 +1,6 @@
 
 /*!
- * rollbar-embedded 1.9.2-1 | https://github.com/yivo/rollbar-embedded | MIT License
+ * rollbar-embedded 2.0.0 | https://github.com/yivo/rollbar-embedded | MIT License
  */
 
 (function() {
